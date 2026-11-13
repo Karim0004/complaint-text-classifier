@@ -24,3 +24,16 @@ Same file as the complaint-escalation project: 432,952 CFPB complaints received 
 5. Repeated texts stay as well, with a `copies` column for how many complaints share the text. 4,753 complaints share theirs with at least one other (1,743 different texts). 78% of those texts went to more than one company, which is probably one consumer complaining about several companies at once, but there's no consumer ID to check. Texts with 10 or more copies are disputed only 7.6% of the time.
 6. Copies could leak across a time split, so I checked: only 77 of the 37,405 complaints after 30 Sep 2016 repeat a text from before.
 7. Channel and consent are dropped because every row is a web complaint with consent. The other fields from the first project are kept and cleaned the same way, for comparing the text with them later. That leaves 3,032 companies.
+
+## EDA, 13 Nov 2026
+
+The charts are in notebooks/03_eda.ipynb and reports/figures.
+
+1. Mortgage narratives are the longest (median 205 words) and credit reporting the shortest (91). Disputed narratives are longer, 163 words against 129, and the dispute rate goes up with every length band, from 15.4% for 25 words or fewer to 30.6% for more than 400. That holds inside each of the four biggest products and is steepest for credit reporting (11.3% to 30.6%).
+2. `xxxx` is in 81% of narratives, then credit (48%) and account (41%). The most common two-word phrases are credit report (18.8%) and credit card (10.8%).
+3. `did` is in 33% of narratives and in 78% of those it's part of "did not". "not" is on the stop-word list, so the negation is lost when stop words are removed. The models should be tried with the stop words left in as well.
+4. Legal and formal wording has the highest dispute rates: evidence 36.5%, alleged 36.3%, cfpb 34.8%, fdcpa 34.6%, certified mail 33.5%. Wording about phone calls and everyday banking has the lowest: `times day` 16.0% (mostly from calls "times a day"), late fee 18.5%, hung 18.6%, overdraft 18.7%.
+5. Only 103 of the 1,006 words that are in at least 1% of narratives are below the overall rate of 22.6%. A long narrative contains more of the words and long narratives are disputed more, so part of a word's rate is length. The length-only baseline will show how much.
+6. Company names carry the company's own rate. `equifax` is at 33.4% and `experian` at 18.3%, and complaints about the two companies are disputed 28.7% and 15.3% of the time. So some of what the text knows is which company the complaint is about, and that matters when the text is compared with the fields from the first project.
+7. Besides the 4,753 exact copies, 9,828 narratives start with the same 100 characters as at least one other. 1,282 use an opening that appears 10 times or more, and they're disputed 13.3% of the time. Pairs are disputed about as often as one-off texts, 23.5% against 22.7%.
+8. The same legal wording goes both ways. Narratives that mention the FCRA are disputed 34.6% of the time when the opening is used fewer than 10 times and 6.0% when it's one of the mass letters (350 narratives).
