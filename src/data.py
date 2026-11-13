@@ -4,6 +4,7 @@ import pandas as pd
 
 DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "complaints.parquet"
 LAST_DATE = "2017-02-28"
+LAST_TRAIN_DATE = "2016-09-30"
 
 # channel and consent are left out because every narrative is a web complaint with consent (see notes.md)
 COLUMNS = {
@@ -64,3 +65,10 @@ def load_text(path=DATA_PATH):
     df["copies"] = df.groupby(df["text"].str.lower())["text"].transform("size")
 
     return df.reset_index(drop=True)
+
+
+def time_split(df, last_train_date=LAST_TRAIN_DATE):
+    """Split by date received: train up to and including last_train_date, test after it."""
+    train = df[df["date_received"] <= last_train_date]
+    test = df[df["date_received"] > last_train_date]
+    return train.reset_index(drop=True), test.reset_index(drop=True)

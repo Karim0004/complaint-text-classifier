@@ -37,3 +37,19 @@ The charts are in notebooks/03_eda.ipynb and reports/figures.
 6. Company names carry the company's own rate. `equifax` is at 33.4% and `experian` at 18.3%, and complaints about the two companies are disputed 28.7% and 15.3% of the time. So some of what the text knows is which company the complaint is about, and that matters when the text is compared with the fields from the first project.
 7. Besides the 4,753 exact copies, 9,828 narratives start with the same 100 characters as at least one other. 1,282 use an opening that appears 10 times or more, and they're disputed 13.3% of the time. Pairs are disputed about as often as one-off texts, 23.5% against 22.7%.
 8. The same legal wording goes both ways. Narratives that mention the FCRA are disputed 34.6% of the time when the opening is used fewer than 10 times and 6.0% when it's one of the mass letters (350 narratives).
+
+## Split, 13 Nov 2026
+
+`time_split()` in src/data.py is the one from the complaint-escalation project, with the same dates, so both projects are tested on the same five months. Train is 19 Mar 2015 to 30 Sep 2016 and test is 1 Oct 2016 to 28 Feb 2017.
+
+| Set | Rows | Share | Disputed | Dispute rate |
+| --- | ---: | ---: | ---: | ---: |
+| Train | 112,256 | 75.0% | 26,089 | 23.2% |
+| Test | 37,405 | 25.0% | 7,795 | 20.8% |
+
+1. The dispute rate drops from 23.2% in train to 20.8% in test, the same direction as in the first project (19.5% to 17.0%).
+2. Student loans go from 4.4% of narratives to 12.3%, and mortgages from 21.5% to 17.6%. 277 companies (534 complaints) only appear in the test window.
+3. Narrative length barely changes, with a median of 137 words in train and 133 in test.
+4. 77 test narratives are exact copies of a training text, and 286 (0.8%) start with the same 100 characters as one. They're template letters and are disputed 14.3% of the time, against 20.9% for the rest of the test set.
+5. Those 286 stay in the test set. A model in use would also get letters it has seen before, and they're too few to move the score much. The final test run will give the score without them as well.
+6. Anything fitted on the text (the vocabulary, the TF-IDF weights, the model) only sees train.
