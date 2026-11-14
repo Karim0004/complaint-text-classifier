@@ -53,3 +53,22 @@ The charts are in notebooks/03_eda.ipynb and reports/figures.
 4. 77 test narratives are exact copies of a training text, and 286 (0.8%) start with the same 100 characters as one. They're template letters and are disputed 14.3% of the time, against 20.9% for the rest of the test set.
 5. Those 286 stay in the test set. A model in use would also get letters it has seen before, and they're too few to move the score much. The final test run will give the score without them as well.
 6. Anything fitted on the text (the vocabulary, the TF-IDF weights, the model) only sees train.
+
+## Baselines, 14 Nov 2026
+
+The three models are in src/models.py and the scores are in notebooks/05_baselines.ipynb. Each model takes the cleaned text as its input and goes through `cross_validate()`, 5-fold stratified CV on train.
+
+| Model | CV ROC-AUC | CV average precision |
+| --- | ---: | ---: |
+| Majority class | 0.500 | 0.232 |
+| Length only (logistic regression on the log of the word count) | 0.567 | 0.276 |
+| TF-IDF + logistic regression (balanced) | 0.629 | 0.343 |
+
+1. The folds keep narratives with the same first 100 characters together. 7,236 of the 112,256 training narratives share an opening with another one, and with plain stratified folds a template letter's copies end up on both sides. For the TF-IDF model that's worth 0.005 ROC-AUC and 0.006 average precision (0.6335 and 0.3490 with plain folds). The length-only model scores the same either way, which points to the copies as the cause.
+2. The majority model gets 0.500 and 0.232, the dispute rate in train.
+3. Length alone gets 0.567 and 0.276. It's one number per narrative, the log of the word count.
+4. TF-IDF with logistic regression gets 0.629 and 0.343, with the five folds between 0.624 and 0.634. It uses single words and drops English stop words and words in fewer than 5 narratives, which leaves 17,231 words when it's fitted on all of train. The vectorizer sits inside the pipeline, so each fold's vocabulary and weights come from its training folds only.
+5. At a 0.5 cut-off the TF-IDF model flags 40.3% of narratives and catches 54.4% of the disputes (14,185 of 26,089), and 31.3% of the flagged ones are disputed. As in the first project, balanced weights make 0.5 a poor cut-off, and it's only here to give a feel for the scores.
+6. The first project's logistic regression had a CV ROC-AUC of 0.646, but on all complaints. These scores are only on complaints with a narrative, so the two aren't comparable until both models are scored on the same rows.
+
+Stop words stay out in this baseline. Leaving them in is the first thing to try in the next step, since the EDA showed that dropping them loses "not".
