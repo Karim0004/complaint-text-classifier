@@ -140,3 +140,41 @@ The same model fitted on one product at a time:
 8. The score goes up with length although the model has no length feature. The rank correlation between the score and the word count is 0.41, and the median narrative has 71 words in the lowest tenth of scores and 298 in the highest.
 
 The company field from the first project already says which company a complaint is about, so the company names are the first place to look for overlap between the text and the fields in the next step.
+
+## Text against fields, 15 Nov 2026
+
+Everything is in notebooks/08_text_against_fields.ipynb. src/fields.py has `build_features()` from the complaint-escalation project, without channel and consent, and the two models that use its table. Three models are compared on the same complaints: the fields alone, the text alone (`chosen()`), and the fields with the text model's score added as one more column, `text_score`.
+
+Cross-validation on train, on the grouped folds:
+
+| Model | CV ROC-AUC | CV average precision |
+| --- | ---: | ---: |
+| Fields, logistic regression | 0.6263 | 0.3206 |
+| Fields, XGBoost | 0.6277 | 0.3238 |
+| Text | 0.6499 | 0.3640 |
+| Fields and text score, logistic regression | 0.6759 | 0.3857 |
+| Fields and text score, XGBoost | 0.6727 | 0.3810 |
+
+The test set, 37,405 complaints from 1 Oct 2016 to 28 Feb 2017 with 20.8% disputed:
+
+| Model | Test ROC-AUC | Test average precision | ROC-AUC without the 286 template letters |
+| --- | ---: | ---: | ---: |
+| Fields | 0.6260 | 0.2887 | 0.6263 |
+| Text | 0.6419 | 0.3190 | 0.6407 |
+| Fields and text score | 0.6709 | 0.3436 | 0.6698 |
+
+1. The text score in the training rows is out-of-fold, from the same grouped 5-fold CV as before. A score from a model that had seen the complaint's own label would look better than it is, and the combined model would lean on the text too much. The test rows get their score from the text model fitted on all of train.
+2. On their own the fields get 0.626 in CV with logistic regression and 0.628 with XGBoost at the first project's settings. The first project's logistic regression got 0.646 on all complaints. Channel and consent are constant here, so the fields have less to work with. The text alone is ahead at 0.650.
+3. With the text score added, logistic regression gets 0.676 and XGBoost 0.673. The order of fields, text and both is the same in all five folds. Logistic regression went to the test run for the fields and for the combined model, since it's level with XGBoost on the fields and slightly ahead with the text score.
+4. One caveat on the CV scores of the combined model. The text scores were made on the same folds, so the text model that scored a training fold had seen the validation fold's labels. A validation complaint's own text score never saw its own label, so the effect should be small, and the test run doesn't have this problem.
+5. The company is where the text and the fields overlap. Without `company_share` and `company_rate` the fields drop from 0.626 to 0.607, but once the text score is in, the two columns are worth 0.003. The text adds 0.066 to fields without the company and 0.050 to fields with it, so about a quarter of what the text adds is the company.
+6. On the test set the fields get 0.626 ROC-AUC, the text 0.642 and both together 0.671, the same order as in CV. The fields score what they did in CV, the text is 0.008 lower and the combined model 0.005 lower. Average precision is lower for all three because the dispute rate fell from 23.2% to 20.8%. Against the base rate the combined model is at 1.65 times on test and 1.66 in CV.
+7. About a third of the text's drop from CV to test is Scottrade and RushCard. 619 training narratives mention one of them and 20 test narratives do, and without the 619 the text's out-of-fold ROC-AUC on train is 0.647 instead of 0.650.
+8. Without the 286 test narratives that share an opening with a training narrative (77 are exact copies), the text and the combined model lose about 0.001 and the fields don't move. This is the score the split notes promised.
+9. Resampling the test complaints 1,000 times, the combined model is 0.045 above the fields (95% interval 0.040 to 0.051) and 0.029 above the text (0.025 to 0.033). The text is 0.016 above the fields (0.008 to 0.024).
+10. The combined model is the best of the three in all seven products with at least 2,000 test narratives. The text helps most where the fields are weakest: mortgages go from 0.562 with the fields to 0.634 with both, and student loans from 0.592 to 0.646. Bank accounts and consumer loans are the two products where the fields beat the text.
+11. In the combined model one standard deviation in the text score moves the log-odds by 0.49, and the weight on `company_rate` falls from 0.26 to 0.14. The company's response keeps its weights (`Untimely response` near -3.1, `Closed` and `Closed with explanation` near 1.1 and 1.0), the three largest in both models. The consumer writes the narrative before the company answers, so the text can't know the response.
+12. The test set was used once in this project, in this notebook. Before the project started, on 12 Nov, I did score a quick TF-IDF model and the first project's model on the same months, to see whether the text was worth a project (0.645 and 0.625). Every setting since then was picked on cross-validation.
+13. The notebook saves the three scores for every complaint to data/scored_train.csv (out-of-fold) and data/scored_test.csv, for the decision step.
+
+So the text does say something about disputes, a little more than the fields do on these complaints, and the two together are better than either. What that's worth to a team that reviews complaints is the next step.
