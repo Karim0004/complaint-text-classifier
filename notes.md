@@ -112,3 +112,31 @@ Classifiers on words and two-word phrases with the stop words left in:
 6. The chosen model is logistic regression at C 0.3 on words and two-word phrases with the stop words left in, `chosen()` in src/models.py. The SVM is level with it but has no probabilities, which the decision step needs. Through the full pipeline it gets 0.650 ROC-AUC and 0.364 average precision, with the folds between 0.641 and 0.656, against 0.629 and 0.343 for the baseline.
 
 The test set still hasn't been used. That happens once, in the text against fields step.
+
+## Explain, 15 Nov 2026
+
+The weights are in notebooks/07_explain.ipynb, with three helper functions in src/explain.py and a chart in reports/figures/term_weights.png. `chosen()` is fitted on all of train, and each of its 284,161 words and phrases gets a weight, positive towards a dispute and negative away from one.
+
+| Direction | Ten largest weights |
+| --- | --- |
+| Towards a dispute | scottrade, equifax, tcpa, chase, attached, illegal, without, of, violated, cfpb |
+| Away from a dispute | ve, payday, rushcard, experian, update, my bank, payday loan, error, rush, phone |
+
+The same model fitted on one product at a time:
+
+| Product | Towards a dispute | Away from a dispute |
+| --- | --- | --- |
+| Debt collection | tcpa, fcra, fdcpa, violation, verification, credit reports | calling my, times day, work, payday |
+| Mortgage | fraud, false, statements, attached, note | help, to get, my home, sale, review |
+| Credit reporting | equifax, inquiries, inquiry, authorization | experian, have never, never lived, owe |
+
+1. Legal wording (illegal, violated, cfpb, fcra, tcpa) and `attached`, from consumers who sent documents, push towards a dispute. Payday loans, fees and phone calls push away. The EDA found the same groups in the raw dispute rates.
+2. Company names have some of the largest weights in both directions. Two of them are events. Scottrade is in 151 narratives (80.1% disputed) and RushCard in 468 (3.8% disputed), and over 90% of each arrived between October and December 2015. Those two weights may not help in the test months. Equifax (about 3.0) and Experian (about -1.3) are the lasting ones, and they follow the two companies' own dispute rates in train, 28.9% and 15.7%.
+3. Stop words have large weights too. `of`, `and`, `by` and `they` push towards a dispute and `my` and `had` push away. The most negative weight of all is `ve`, which is what's left of "I 've". My reading is that a narrative about what the company did scores higher than one that tells the consumer's own story.
+4. A term's raw dispute rate and its weight can disagree. Five of the 20 most negative terms are in narratives that are disputed more often than the overall 23.2%. The raw rate includes length, and the weight is what the term adds once the rest of the narrative is counted.
+5. In debt collection, wording about the law pushes towards a dispute and wording about phone calls pushes away: narratives with `times day` are disputed 12.7% of the time against 21.9% for the product. In mortgages it's accusations and paperwork against requests for help, with `fraud` narratives disputed 42.2% of the time against 26.9%. In credit reporting the largest weight by far is `equifax` (4.18), so much of that model is which bureau the complaint is about.
+6. The single words aren't steady. With the model fitted on two halves of train, only 6 of the 20 largest weights towards a dispute are in both lists, and 4 of the 20 away from one (22 and 9 of the top 50). The groups do repeat in both halves: company names, legal wording and `attached` on one side, phone calls, fees and payday loans on the other. I read the lists as those groups, with the single words as examples.
+7. The highest out-of-fold scores are Scottrade narratives (46 of the 100 highest). The lowest are one sentence in several wordings, "Experian is not responding to my requests to investigate and remove accounts", and 42 of the 100 lowest are about Experian. The grouped folds only keep narratives together when their first 100 characters match, so reworded copies like these still land on both sides of a fold.
+8. The score goes up with length although the model has no length feature. The rank correlation between the score and the word count is 0.41, and the median narrative has 71 words in the lowest tenth of scores and 298 in the highest.
+
+The company field from the first project already says which company a complaint is about, so the company names are the first place to look for overlap between the text and the fields in the next step.
