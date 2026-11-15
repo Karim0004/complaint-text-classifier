@@ -10,4 +10,5 @@ Scored with 5-fold cross-validation on the training set (narratives received fro
 | --- | ---: | ---: |
 | Majority class | 0.500 | 0.232 |
 | Length only | 0.567 | 0.276 |
-| TF-IDF + logistic regression (balanced) | 0.629 | 0.343 |
+| TF-IDF on words + logistic regression (baseline) | 0.629 | 0.343 |
+| TF-IDF on words and two-word phrases + logistic regression (C 0.3), chosen | 0.650 | 0.364 |

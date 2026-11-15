@@ -72,3 +72,43 @@ The three models are in src/models.py and the scores are in notebooks/05_baselin
 6. The first project's logistic regression had a CV ROC-AUC of 0.646, but on all complaints. These scores are only on complaints with a narrative, so the two aren't comparable until both models are scored on the same rows.
 
 Stop words stay out in this baseline. Leaving them in is the first thing to try in the next step, since the EDA showed that dropping them loses "not".
+
+## Models, 15 Nov 2026
+
+Everything is in notebooks/06_models.ipynb, on the grouped folds from the baselines. `vectorize_folds()` and `score_folds()` in src/models.py vectorize the text once per fold, so several classifiers can be tried on one TF-IDF setting without building it again.
+
+TF-IDF settings, each with the baseline's logistic regression (C 1):
+
+| TF-IDF setting | Features | CV ROC-AUC | CV average precision |
+| --- | ---: | ---: | ---: |
+| Words, stop words dropped (baseline) | 15,684 | 0.6285 | 0.3432 |
+| Words | 15,992 | 0.6334 | 0.3472 |
+| Words and two-word phrases | 243,473 | 0.6442 | 0.3652 |
+| Words and two-word phrases, stop words dropped | 208,716 | 0.6397 | 0.3594 |
+| Words and two-word phrases, min_df 2 | 563,822 | 0.6457 | 0.3664 |
+| Words and two-word phrases, min_df 20 | 81,373 | 0.6405 | 0.3600 |
+
+Classifiers on words and two-word phrases with the stop words left in:
+
+| Classifier | CV ROC-AUC | CV average precision |
+| --- | ---: | ---: |
+| Logistic regression, C 0.1 | 0.6463 | 0.3538 |
+| Logistic regression, C 0.3 | 0.6499 | 0.3640 |
+| Logistic regression, C 1 | 0.6442 | 0.3652 |
+| Logistic regression, C 3 | 0.6334 | 0.3560 |
+| Naive Bayes, alpha 0.1 | 0.6284 | 0.3543 |
+| Naive Bayes, alpha 0.3 | 0.6139 | 0.3431 |
+| Naive Bayes, alpha 1 | 0.5569 | 0.2975 |
+| Linear SVM, C 0.01 | 0.6447 | 0.3510 |
+| Linear SVM, C 0.03 | 0.6503 | 0.3625 |
+| Linear SVM, C 0.1 | 0.6463 | 0.3649 |
+| Linear SVM, C 1 | 0.6162 | 0.3368 |
+
+1. Leaving the stop words in is worth about 0.005 ROC-AUC, with single words and with phrases. That fits the EDA, where "did not" lost its "not".
+2. Two-word phrases add 0.011 ROC-AUC and 0.018 average precision on top of that, with 15 times as many features.
+3. The minimum document frequency matters little. Going down to 2 narratives more than doubles the features for 0.0015 ROC-AUC, and going up to 20 loses 0.004. It stays at 5.
+4. Logistic regression at C 0.3 and the linear SVM at C 0.03 are level at 0.650, well inside the spread between folds (about 0.006). Both get worse as C goes up from there.
+5. Naive Bayes is behind at every setting. With the default alpha of 1 it scores 0.557, below the length-only model, and alpha 0.1 brings it to 0.628. The likely reason is that it's fitted on TF-IDF weights, which are small, so a smoothing of 1 on each of 243,473 features swamps them.
+6. The chosen model is logistic regression at C 0.3 on words and two-word phrases with the stop words left in, `chosen()` in src/models.py. The SVM is level with it but has no probabilities, which the decision step needs. Through the full pipeline it gets 0.650 ROC-AUC and 0.364 average precision, with the folds between 0.641 and 0.656, against 0.629 and 0.343 for the baseline.
+
+The test set still hasn't been used. That happens once, in the text against fields step.
