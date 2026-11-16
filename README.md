@@ -22,3 +22,7 @@ The test set (37,405 narratives received from Oct 2016 to Feb 2017, 20.8% disput
 | Fields and the text model's score (logistic regression) | 0.671 | 0.344 |
 
 Adding the text score to the fields is worth 0.045 ROC-AUC, with a 95% interval of 0.040 to 0.051 from resampling the test set.
+
+For a team that reviews the 10% of complaints with the highest scores, 3,740 of the test complaints, the list holds 1,199 disputes with the fields, 1,468 with the text and 1,564 with both. A random 10% would hold about 780.
+
+![Disputes caught by share of complaints reviewed, test set](reports/figures/gains_curve.png)

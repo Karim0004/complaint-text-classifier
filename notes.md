@@ -178,3 +178,33 @@ The test set, 37,405 complaints from 1 Oct 2016 to 28 Feb 2017 with 20.8% disput
 13. The notebook saves the three scores for every complaint to data/scored_train.csv (out-of-fold) and data/scored_test.csv, for the decision step.
 
 So the text does say something about disputes, a little more than the fields do on these complaints, and the two together are better than either. What that's worth to a team that reviews complaints is the next step.
+
+## Decision, 16 Nov 2026
+
+Everything is in notebooks/09_decision.ipynb. It reads the scores the last notebook saved, so the test set isn't scored again. The three models are compared on how many disputes are among the 10% of complaints with the highest scores. The 10% is an assumption about how much a team can review.
+
+The top 10% of the test set, 3,740 of 37,405 complaints:
+
+| Model | Disputes in the top 10% | Disputed among reviewed | Share of all disputes | Times random |
+| --- | ---: | ---: | ---: | ---: |
+| Fields | 1,199 | 32.1% | 15.4% | 1.54 |
+| Text | 1,468 | 39.3% | 18.8% | 1.88 |
+| Fields and text score | 1,564 | 41.8% | 20.1% | 2.01 |
+
+1. The text adds 365 disputes to the top 10%, about 98 more for every 1,000 complaints reviewed. Resampling the test set 1,000 times gives a 95% interval of 81 to 115. The combined list has 96 more disputes than the text alone, about 26 per 1,000 (14 to 36).
+2. The order is the same further down the list. At 20% the combined model catches 35.5% of all disputes and the fields 29.1%, and at 30% it's 48.0% against 42.2%. The gains chart is reports/figures/gains_curve.png.
+3. The lift held from train to test. On the out-of-fold train scores the top 10% is at 1.57, 1.90 and 2.00 times the dispute rate for the three models.
+4. The text changes most of the list. The fields list and the combined list share 1,436 complaints, and the 2,304 the text brings in were disputed 42.7% of the time against 26.9% for the 2,304 it replaces.
+5. The overall list is uneven across companies. 24.2% of the narratives about Equifax and about JPMorgan Chase are on it, and 2.2% of those about Navient and Experian. A company's own team would rank inside its own complaints, where the company columns say nothing. Done that way for the 55 companies with at least 100 test narratives, the top 10% is 28.6% disputed with the fields, 38.0% with the text and 40.0% with both. The text adds about 114 disputes per 1,000 reviewed there, a little more than on the overall list, and the combined model is ahead of the fields in each of the eight largest companies.
+6. Calibration. The models use balanced class weights, so the raw scores average 0.47 to 0.49 against a dispute rate of 23.2% in train. A logistic regression with one input, the log-odds of the score, fitted on the out-of-fold train scores, brings them back to the actual rate without changing the order. On test the combined model then predicts 22.5% against 20.8% actual, 1.7 points high, and each of the ten groups is high by 0.6 to 3.0 points. The dispute rate fell after the training months, and the first project had the same kind of gap (19.4% against 17.0%). The rescaling needs refitting on recent months before the score is shown as a probability.
+
+Limitations and ethics:
+
+7. A complaint without a narrative gets no text score. In the test months that's 50,034 of the 87,439 labelled complaints (57.2%): everything that came by phone, post, fax or referral, and 45.5% of web complaints. They only have the fields.
+8. The narratives in the public file are from consumers who agreed to publish them, and their complaints are disputed more often (20.8% against 14.2% for the rest in the test months). Whether the text model works as well for the other consumers can't be tested with this data.
+9. The list leans towards long narratives. 20.2% of the longest quarter (more than 250 words) are on the combined list and 3.7% of the shortest quarter (69 words or fewer). That follows the actual dispute rates, 26.8% and 15.9%, and the short narratives aren't scored below their rate. It still means a consumer who writes little is reviewed about a fifth as often, while 15.9% of the short narratives end in a dispute.
+10. Servicemembers are on the combined list 8.6% of the time against 10.1% for untagged consumers, with the same dispute rate in the test months (20.7% and 20.9%). They disputed less often in train (21.7% against 23.4%) and the tag is one of the fields, so the models score them a little lower. With the fields alone it's 7.2%, so the text narrows the gap. Older Americans are at 9.5%.
+11. A dispute is what the consumer did after the response. It doesn't say the company handled the complaint badly, and the explain step showed that the text model leans on legal wording and attached documents. So the list favours consumers who are likely to push back, and a team that only works from the list will see fewer of the ones who aren't.
+12. Nothing here shows that reviewing a complaint prevents the dispute. "Caught" only means the complaint was on the list. The labels also end in April 2017, when CFPB stopped recording disputes, so all of this is on old data.
+
+For a team that can review a tenth of its complaints, my choice is the combined model where there's a narrative and the fields where there isn't, ranked inside the company, with the rescaling refitted on recent months. The README, the summary and the Power BI page are the next step.
