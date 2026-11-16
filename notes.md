@@ -208,3 +208,7 @@ Limitations and ethics:
 12. Nothing here shows that reviewing a complaint prevents the dispute. "Caught" only means the complaint was on the list. The labels also end in April 2017, when CFPB stopped recording disputes, so all of this is on old data.
 
 For a team that can review a tenth of its complaints, my choice is the combined model where there's a narrative and the fields where there isn't, ranked inside the company, with the rescaling refitted on recent months. The README, the summary and the Power BI page are the next step.
+
+## README and summary, 16 Nov 2026
+
+The README now follows PACE, with the data source, the two leaks that come with the text, the ethics checks, both results tables, what the text model reads, the review list, what didn't work, limitations and how to run. The one-page executive summary is in reports/. `build_parquet()` in src/data.py is the one from the first project. It turns the downloaded CFPB CSV into the parquet file the rest of the code reads, and `load_text()` gives the same table from it as before.

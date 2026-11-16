@@ -29,6 +29,20 @@ CATEGORY_COLUMNS = [
 ]
 
 
+def build_parquet(csv_path, out_path=DATA_PATH):
+    """Turn the downloaded CFPB CSV into the parquet file that load_text() reads.
+
+    "N/A" is a real value in the dispute and consent columns, so only empty cells count as missing.
+    The full CFPB file is several GB, so it's read in chunks and only 1 Jan 2015 to 24 Apr 2017 is kept.
+    """
+    chunks = pd.read_csv(csv_path, dtype=str, keep_default_na=False, na_values=[""], chunksize=500_000)
+    df = pd.concat(c[(c["Date received"] >= "2015-01-01") & (c["Date received"] <= "2017-04-24")] for c in chunks)
+    for col in ["Date received", "Date sent to company"]:
+        df[col] = pd.to_datetime(df[col])
+    df["Complaint ID"] = df["Complaint ID"].astype(int)
+    df.to_parquet(out_path, index=False)
+
+
 def clean_text(text):
     """Swap CFPB's redaction marks for one token each and tidy the whitespace."""
     # amounts are written as {$400.00}
