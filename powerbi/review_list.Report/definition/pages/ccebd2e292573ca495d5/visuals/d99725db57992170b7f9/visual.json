@@ -1,0 +1,112 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "d99725db57992170b7f9",
+  "position": {
+    "x": 40,
+    "y": 130,
+    "z": 2000,
+    "height": 120,
+    "width": 1840,
+    "tabOrder": 2000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "scores"
+                    }
+                  },
+                  "Property": "Complaints"
+                }
+              },
+              "queryRef": "scores.Complaints",
+              "nativeQueryRef": "Complaints"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "scores"
+                    }
+                  },
+                  "Property": "Dispute rate"
+                }
+              },
+              "queryRef": "scores.Dispute rate",
+              "nativeQueryRef": "Dispute rate"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "scores"
+                    }
+                  },
+                  "Property": "Top 10% disputed, fields"
+                }
+              },
+              "queryRef": "scores.Top 10% disputed, fields",
+              "nativeQueryRef": "Top 10% disputed, fields"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "scores"
+                    }
+                  },
+                  "Property": "Top 10% disputed, text"
+                }
+              },
+              "queryRef": "scores.Top 10% disputed, text",
+              "nativeQueryRef": "Top 10% disputed, text"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "scores"
+                    }
+                  },
+                  "Property": "Top 10% disputed, both"
+                }
+              },
+              "queryRef": "scores.Top 10% disputed, both",
+              "nativeQueryRef": "Top 10% disputed, both"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "value": [
+        {
+          "properties": {
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "scores.Complaints"
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

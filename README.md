@@ -107,6 +107,12 @@ Ranked across all companies, the list is uneven: 24.2% of the narratives about E
 
 The models use balanced class weights, so the raw scores sit near 0.5 and can't be read as probabilities. A logistic regression with one input, fitted on the training scores, brings them back to the actual rate. On test they then run 1.7 points high (22.5% predicted, 20.8% actual) because the dispute rate fell.
 
+### Power BI page
+
+![Review list page in Power BI](powerbi/review_list.png)
+
+[review_list.pbip](powerbi/review_list.pbip) is a one-page Power BI report on the scored test set, with one row per complaint and model. It shows the dispute rate in each tenth of the ranking for the three models and the share of disputes caught as more of the list is reviewed. It also puts the dispute rate next to the predicted rate by product, and lists the companies with the share of their complaints on the fields list and on the combined list. In the tenth with the highest scores 41.8% of complaints are disputed with the combined model, and in the lowest tenth 6.9%.
+
 ### What didn't work
 
 Naive Bayes was behind logistic regression at every setting, 0.628 at best against 0.650. Dropping English stop words cost about 0.005 ROC-AUC, since the list includes "not". The minimum document frequency barely mattered. A linear SVM was level with logistic regression but has no probabilities. XGBoost at the first project's settings didn't beat logistic regression on the fields (0.628 against 0.626) or with the text score added (0.673 against 0.676). The single words with the largest weights aren't stable either: with the model fitted on two halves of the training set, only 6 of the 20 largest weights towards a dispute were in both lists.
@@ -129,3 +135,4 @@ Two of the text model's largest weights came from one-off events in late 2015, S
    ```
 
 4. Run the notebooks in `notebooks/` in order, from 01 to 09. Notebook 06 takes about 21 minutes, 07 about 6 and 08 about 8. Notebook 09 reads the scores that 08 saves in `data/`. Figures are saved to `reports/figures/`.
+5. For the Power BI page, open `powerbi/review_list.pbip` in Power BI Desktop after notebook 09 has saved `data/scored_test_by_model.csv`. The query reads the file by its full path, so change the path in the Source step to your own folder and refresh.

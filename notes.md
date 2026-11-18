@@ -212,3 +212,15 @@ For a team that can review a tenth of its complaints, my choice is the combined 
 ## README and summary, 16 Nov 2026
 
 The README now follows PACE, with the data source, the two leaks that come with the text, the ethics checks, both results tables, what the text model reads, the review list, what didn't work, limitations and how to run. The one-page executive summary is in reports/. `build_parquet()` in src/data.py is the one from the first project. It turns the downloaded CFPB CSV into the parquet file the rest of the code reads, and `load_text()` gives the same table from it as before.
+
+## Power BI page, 18 Nov 2026
+
+powerbi/review_list.pbip is a one-page report on data/scored_test_by_model.csv, which the decision notebook now saves at the end: one row per complaint and model, with the rescaled score and the tenth of the ranking the complaint falls in. It's saved as a Power BI project, so the model and the report are text files in the repo.
+
+1. The cards match the decision notebook: 37,405 complaints, 20.8% disputed, and 32.1%, 39.3% and 41.8% disputed in the top 10% for the fields, the text and both.
+2. The table has three rows per complaint so that the model can go on a chart's legend. `Complaints` counts distinct complaint IDs, and the dispute rate comes out the same with one model selected or all three.
+3. `Disputes caught` adds up the disputes in the deciles up to the one on the axis, so the line chart is the gains chart in ten steps. At decile 1 the three models are at 15.4%, 18.8% and 20.1% of all disputes, and at decile 3 at 42.2%, 45.0% and 48.0%, the same as in the notebook.
+4. In the lowest tenth the dispute rate is 9.1% with the fields, 9.6% with the text and 6.9% with both, so the combined model also does better at the bottom of the list.
+5. The product chart puts the dispute rate next to the predicted rate of the combined model. The predicted rate is higher in six of the seven products, by 1.1 to 2.7 points, which is the gap the calibration check found on test. Credit cards are the exception, at 22.8% predicted against 23.6% actual.
+6. That chart only has the seven products with at least 2,000 complaints. As horizontal bars with ten products the labels ran into the bars, so it's a column chart.
+7. The company table has the share of each company's complaints in decile 1, for the fields and for the combined model. Experian, Citibank, Capital One and Synchrony have none on the fields list and 2.2% to 5.4% on the combined list. JPMorgan Chase goes the other way, from 34.3% to 24.2%.

@@ -1,0 +1,114 @@
+table scores
+	lineageTag: d38f779f-4c10-4402-aa98-1b45b2b13c0b
+
+	measure Complaints = DISTINCTCOUNT(scores[complaint_id])
+		formatString: #,0
+		lineageTag: 33103329-c27e-4644-a7bc-20bd4bd34d11
+
+	measure 'Dispute rate' = DIVIDE(SUM(scores[disputed]), COUNTROWS(scores))
+		formatString: 0.0%
+		lineageTag: 6cb58099-3ee3-4a5b-86a7-b330fc8aa18f
+
+	measure 'Top 10% disputed, fields' = CALCULATE([Dispute rate], scores[model] = "fields", scores[decile] = 1)
+		formatString: 0.0%
+		lineageTag: 0dc876e4-2edf-42d9-a488-4c7786daab8c
+
+	measure 'Top 10% disputed, text' = CALCULATE([Dispute rate], scores[model] = "text", scores[decile] = 1)
+		formatString: 0.0%
+		lineageTag: 2dca7f8f-0bc7-4391-9c69-cdfed3e67693
+
+	measure 'Top 10% disputed, both' = CALCULATE([Dispute rate], scores[model] = "fields and text score", scores[decile] = 1)
+		formatString: 0.0%
+		lineageTag: a750f88d-a37b-431d-92cf-273defac4327
+
+	measure 'Disputes caught' = VAR d = MAX(scores[decile]) RETURN DIVIDE(CALCULATE(SUM(scores[disputed]), scores[decile] <= d), CALCULATE(SUM(scores[disputed]), ALL(scores[decile])))
+		formatString: 0.0%
+		lineageTag: 2ec74faa-9b09-4a5c-ba5c-64e8bc761399
+
+	measure 'Predicted rate' = CALCULATE(AVERAGE(scores[risk]), scores[model] = "fields and text score")
+		formatString: 0.0%
+		lineageTag: b1afadd6-7ae2-4ea5-8354-d40d23582b65
+
+	measure 'On the fields list' = DIVIDE(CALCULATE(COUNTROWS(scores), scores[model] = "fields", scores[decile] = 1) + 0, [Complaints])
+		formatString: 0.0%
+		lineageTag: 789f47b2-6fa0-4e33-8f24-127d13535b70
+
+	measure 'On the combined list' = DIVIDE(CALCULATE(COUNTROWS(scores), scores[model] = "fields and text score", scores[decile] = 1) + 0, [Complaints])
+		formatString: 0.0%
+		lineageTag: a267c317-9fcf-4c10-a406-6af068263864
+
+	column complaint_id
+		dataType: int64
+		formatString: 0
+		lineageTag: e801c285-df75-470a-990b-96912ac85244
+		summarizeBy: none
+		sourceColumn: complaint_id
+
+	column date_received
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 18570a7c-1ef1-4020-af35-905dccc10005
+		summarizeBy: none
+		sourceColumn: date_received
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column product
+		dataType: string
+		lineageTag: 02d42eae-839a-46e5-9231-ca0b6367aa21
+		summarizeBy: none
+		sourceColumn: product
+
+	column company
+		dataType: string
+		lineageTag: 2af394a8-413e-47f9-9a9c-6888ec3dba75
+		summarizeBy: none
+		sourceColumn: company
+
+	column disputed
+		dataType: int64
+		formatString: 0
+		lineageTag: 09713a62-3b9d-4469-beca-b977b119e617
+		summarizeBy: sum
+		sourceColumn: disputed
+
+	column model
+		dataType: string
+		lineageTag: 38820f77-dfb2-4348-b206-a1eaa309ec08
+		summarizeBy: none
+		sourceColumn: model
+		sortByColumn: model_no
+
+	column model_no
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: b976f249-4df1-4e88-b44e-2abd3ec6e461
+		summarizeBy: none
+		sourceColumn: model_no
+
+	column risk
+		dataType: double
+		lineageTag: c9418264-bc75-4bb3-8523-441e928fb39a
+		summarizeBy: sum
+		sourceColumn: risk
+
+	column decile
+		dataType: int64
+		formatString: 0
+		lineageTag: 5426d253-2146-49f7-8348-735e263b4827
+		summarizeBy: none
+		sourceColumn: decile
+
+	partition scores = m
+		mode: import
+		source =
+				let
+					Source = Csv.Document(File.Contents("P:\Data Science Projects\Complaint Text Classification\data\scored_test_by_model.csv"),[Delimiter=",", Columns=9, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+					#"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+					#"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"complaint_id", Int64.Type}, {"date_received", type date}, {"product", type text}, {"company", type text}, {"disputed", Int64.Type}, {"model", type text}, {"model_no", Int64.Type}, {"risk", type number}, {"decile", Int64.Type}})
+				in
+					#"Changed Type"
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,47 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "a6f547b1d95cb5e9d040",
+  "position": {
+    "x": 40,
+    "y": 15,
+    "z": 0,
+    "height": 105,
+    "width": 1380,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "What the complaint text adds to the review list",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "20pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Complaints with a narrative received 1 Oct 2016 to 28 Feb 2017, each scored by three models: the fields, the text, and the fields with the text model's score. Decile 1 is the 10% of complaints a model scores highest, and disputes caught adds the deciles up from 1. The predicted rate and the two list columns are for the fields and text score model. Products with under 2,000 complaints are left off the chart.",
+                    "textStyle": {
+                      "fontSize": "12pt"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

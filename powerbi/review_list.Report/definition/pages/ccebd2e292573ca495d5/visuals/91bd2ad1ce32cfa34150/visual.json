@@ -1,0 +1,111 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "91bd2ad1ce32cfa34150",
+  "position": {
+    "x": 960,
+    "y": 675,
+    "z": 6000,
+    "height": 385,
+    "width": 920,
+    "tabOrder": 6000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "scores"
+                    }
+                  },
+                  "Property": "company"
+                }
+              },
+              "queryRef": "scores.company",
+              "nativeQueryRef": "company"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "scores"
+                    }
+                  },
+                  "Property": "Complaints"
+                }
+              },
+              "queryRef": "scores.Complaints",
+              "nativeQueryRef": "Complaints"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "scores"
+                    }
+                  },
+                  "Property": "Dispute rate"
+                }
+              },
+              "queryRef": "scores.Dispute rate",
+              "nativeQueryRef": "Dispute rate"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "scores"
+                    }
+                  },
+                  "Property": "On the fields list"
+                }
+              },
+              "queryRef": "scores.On the fields list",
+              "nativeQueryRef": "On the fields list"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "scores"
+                    }
+                  },
+                  "Property": "On the combined list"
+                }
+              },
+              "queryRef": "scores.On the combined list",
+              "nativeQueryRef": "On the combined list"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "scores"
+                  }
+                },
+                "Property": "Complaints"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
